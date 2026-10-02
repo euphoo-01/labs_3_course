@@ -1,0 +1,14 @@
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/bin/Debug/net10.0/SP_07
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/bin/Debug/net10.0/SP_07.deps.json
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/bin/Debug/net10.0/SP_07.runtimeconfig.json
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/bin/Debug/net10.0/SP_07.dll
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/bin/Debug/net10.0/SP_07.pdb
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/SP_07.GeneratedMSBuildEditorConfig.editorconfig
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/SP_07.AssemblyInfoInputs.cache
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/SP_07.AssemblyInfo.cs
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/SP_07.csproj.CoreCompileInputs.cache
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/SP_07.dll
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/refint/SP_07.dll
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/SP_07.pdb
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/SP_07.genruntimeconfig.cache
+/home/euphoo/02. University/3 КУРС/labs/СП/SP_07/obj/Debug/net10.0/ref/SP_07.dll

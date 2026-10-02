@@ -1,0 +1,14 @@
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/bin/Debug/net10.0/SP_08
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/bin/Debug/net10.0/SP_08.deps.json
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/bin/Debug/net10.0/SP_08.runtimeconfig.json
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/bin/Debug/net10.0/SP_08.dll
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/bin/Debug/net10.0/SP_08.pdb
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/SP_08.GeneratedMSBuildEditorConfig.editorconfig
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/SP_08.AssemblyInfoInputs.cache
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/SP_08.AssemblyInfo.cs
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/SP_08.csproj.CoreCompileInputs.cache
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/SP_08.dll
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/refint/SP_08.dll
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/SP_08.pdb
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/SP_08.genruntimeconfig.cache
+/home/euphoo/02. University/3 КУРС/labs/СП/L1/SP_08/obj/Debug/net10.0/ref/SP_08.dll

@@ -1,0 +1,15 @@
+name: local-oracle-db
+services:
+  oracle-free:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-db
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PWD=sa1991
+    volumes:
+      - oradata:/opt/oracle/oradata
+    shm_size: 1g
+
+volumes:
+  oradata:

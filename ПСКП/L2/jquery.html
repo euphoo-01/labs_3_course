@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>jQuery AJAX</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+</head>
+
+<body>
+
+<h1>jQuery AJAX</h1>
+
+<p>
+    Полученное от сервера имя:
+    <span id="name">Загрузка...</span>
+</p>
+
+<script>
+
+    $.ajax({
+
+        url: '/api/name',
+        method: 'GET',
+
+        success: function (data) {
+
+            $('#name').text(data);
+
+        },
+
+        error: function (error) {
+
+            console.error('Ошибка:', error);
+
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>

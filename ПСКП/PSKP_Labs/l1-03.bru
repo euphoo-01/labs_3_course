@@ -1,0 +1,26 @@
+meta {
+  name: l1-03
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: text/json
+}
+
+body:json {
+  {
+    "test": true
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

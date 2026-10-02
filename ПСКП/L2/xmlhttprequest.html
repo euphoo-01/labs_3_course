@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>XMLHttpRequest</title>
+</head>
+
+<body>
+
+<h1>XMLHttpRequest</h1>
+
+<p>
+    Полученное от сервера имя:
+    <span id="name">Загрузка...</span>
+</p>
+
+<script>
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.open(
+        'GET',
+        '/api/name',
+        true
+    );
+
+    xhr.onreadystatechange = function () {
+
+        if (xhr.readyState === 4 && xhr.status === 200) {
+
+            document.getElementById('name').textContent =
+                xhr.responseText;
+        }
+    };
+
+    xhr.send();
+
+</script>
+
+</body>
+</html>
