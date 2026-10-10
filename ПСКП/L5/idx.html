@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Lab 05 - EventEmitter and Timers</title>
+</head>
+<body>
+
+<h1>Lab 05</h1>
+
+<div>
+    <label for="id">ID:</label>
+    <input id="id" type="number">
+</div>
+<br>
+<div>
+    <label for="name">Name:</label>
+    <input id="name" type="text">
+</div>
+<br>
+<div>
+    <label for="bday">Birthday:</label>
+    <input id="bday" type="date">
+</div>
+<br>
+
+<button onclick="sendRequest('GET')">GET</button>
+<button onclick="sendRequest('POST')">POST</button>
+<button onclick="sendRequest('PUT')">PUT</button>
+<button onclick="sendRequest('DELETE')">DELETE</button>
+<button onclick="sendRequest('STATS')">GET statistics</button>
+
+<h2>Result</h2>
+<pre id="result"></pre>
+
+<script>
+async function sendRequest(action) {
+    var requestUrl = action === 'STATS' ? '/api/ss' : '/api/db';
+    var method = action === 'STATS' ? 'GET' : action;
+    var options = { method: method };
+
+    if (method === 'POST' || method === 'PUT') {
+        options.headers = { 'Content-Type': 'application/json' };
+        options.body = JSON.stringify({
+            id: Number(document.getElementById('id').value),
+            name: document.getElementById('name').value,
+            bday: document.getElementById('bday').value
+        });
+    }
+
+    if (method === 'DELETE') {
+        requestUrl += '?id=' + encodeURIComponent(document.getElementById('id').value);
+    }
+
+    try {
+        var response = await fetch(requestUrl, options);
+        var data = await response.json();
+        document.getElementById('result').textContent =
+            JSON.stringify(data, null, 2);
+    }
+    catch (error) {
+        document.getElementById('result').textContent = error.message;
+    }
+}
+</script>
+
+</body>
+</html>
