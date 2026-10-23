@@ -1,0 +1,21 @@
+{
+  "name": "pskp-lab06",
+  "version": "1.1.0",
+  "private": true,
+  "description": "ПСКП — лабораторная работа 06: один HTTP-сервер, npm, sendmail, m0603",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "demo": "node scripts/dry-run.js server.js",
+    "test": "node --test tests/*.test.js",
+    "npm:info": "npm view sendmail",
+    "npm:installed": "npm ls sendmail",
+    "smtp:dev": "node scripts/smtp-capture.js",
+    "setup": "npm install && npm --prefix 06-04 install"
+  },
+  "dependencies": {
+    "sendmail": "1.6.1"
+  }
+}

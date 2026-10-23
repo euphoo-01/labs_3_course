@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ЛР 06-03</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <h2>Задание 03</h2>
+      <h1>Модуль m0603</h1>
+      <!-- FEEDBACK -->
+      <form action="/06-03/send" method="post">
+        <label for="message">Строка для отправки</label>
+        <textarea
+          id="message"
+          name="message"
+          maxlength="5000"
+          required
+          placeholder="Например: Лабораторная работа 06 выполнена"
+        ></textarea>
+        <button type="submit">Вызвать send(message)</button>
+      </form>
+    </main>
+  </body>
+</html>

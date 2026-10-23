@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ЛР 06-04</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <h2>Задание 04</h2>
+      <h1>Пакет из npm</h1>
+      <!-- FEEDBACK -->
+      <form action="/06-04/send" method="post">
+        <label for="message">Строка для отправки</label>
+        <textarea
+          id="message"
+          name="message"
+          maxlength="5000"
+          required
+          placeholder="Приложение 06-04 использует установленный пакет"
+        ></textarea>
+        <button type="submit">Вызвать установленный модуль →</button>
+      </form>
+    </main>
+  </body>
+</html>

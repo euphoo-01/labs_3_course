@@ -1,0 +1,10 @@
+{
+  "name": "pskp-lab06-04-consumer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Приложение-потребитель установленного npm-пакета m0603",
+  "dependencies": {
+    "@euphoo/m0603": "^1.0.2",
+    "m0603": "npm:@euphoo/m0603@^0.0.0-stage"
+  }
+}

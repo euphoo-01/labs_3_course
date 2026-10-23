@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ЛР 06-02</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <h2>Задание 02</h2>
+      <h1>Отправка email</h1>
+      <!-- FEEDBACK -->
+      <form action="/06-02/send" method="post">
+        <label for="from">Email отправителя</label>
+        <input
+          id="from"
+          name="from"
+          type="email"
+          placeholder="sender@example.test"
+          required
+          maxlength="254"
+        />
+        <label for="to">Email получателя</label>
+        <input
+          id="to"
+          name="to"
+          type="email"
+          placeholder="receiver@example.test"
+          required
+          maxlength="254"
+        />
+        <label for="message">Сообщение</label>
+        <textarea
+          id="message"
+          name="message"
+          placeholder="Введите текст письма..."
+          minlength="1"
+          maxlength="5000"
+          required
+        ></textarea>
+        <button type="submit">Отправить сообщение</button>
+      </form>
+    </main>
+  </body>
+</html>
