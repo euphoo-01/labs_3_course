@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System.Threading.Channels в лабораторной</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <div class="eyebrow">Урок 0002 · один механизм</div>
+  <h1>System.Threading.Channels как асинхронная очередь</h1>
+  <p class="lede">Если контроллеры и <code>async/await</code> уже знакомы, новое здесь — общий потокобезопасный буфер, через который независимые HTTP-запросы могут передавать данные и регулировать скорость друг друга.</p>
+
+  <h2>Ментальная модель</h2>
+  <div class="flow">
+    <span class="step">Producer: enqueue-запрос</span><span class="arrow">→</span>
+    <span class="step">Channel&lt;string&gt;</span><span class="arrow">→</span>
+    <span class="step">Consumer: dequeue-запрос</span>
+  </div>
+  <p><code>Channel&lt;T&gt;</code> — не сетевой канал. Это объект в памяти процесса: потокобезопасная producer/consumer-очередь с асинхронным ожиданием. У неё две стороны: <code>Writer</code> пишет, <code>Reader</code> читает.</p>
+
+  <h2>Что делает код</h2>
+  <pre><code>Queue = Channel.CreateBounded&lt;string&gt;(
+  new BoundedChannelOptions(capacity)
+  {
+    FullMode = BoundedChannelFullMode.Wait,
+    SingleReader = false,
+    SingleWriter = false
+  });</code></pre>
+  <ul>
+    <li><code>Bounded</code> — очередь имеет максимальную ёмкость.</li>
+    <li>В этой лабораторной <code>capacity = 1</code>.</li>
+    <li><code>Wait</code> — при заполнении новое сообщение не теряется: writer ждёт место.</li>
+    <li>Значения <code>false</code> разрешают несколько одновременных readers и writers.</li>
+  </ul>
+
+  <h2>Что происходит со вторым enqueue</h2>
+  <ol>
+    <li>Первый запрос вызывает <code>WriteAsync</code>; сообщение занимает единственное место.</li>
+    <li>Второй запрос вызывает <code>WriteAsync</code>, но места нет.</li>
+    <li>Метод возвращает незавершённый <code>ValueTask</code>; <code>await</code> не держит поток заблокированным.</li>
+    <li>Если другой запрос выполнит <code>dequeue</code>, место освободится и ожидающий writer продолжит работу.</li>
+    <li>Если место не появилось за три секунды, cancellation token отменяет ожидание.</li>
+    <li>Контроллер ловит эту отмену и возвращает HTTP 408.</li>
+  </ol>
+  <div class="note"><b>Backpressure:</b> очередь заставляет быстрого producer ждать медленного consumer. Это защищает приложение от бесконтрольного роста памяти.</div>
+
+  <h2>Операции Reader</h2>
+  <table>
+    <tr><th>Код</th><th>Поведение</th></tr>
+    <tr><td><code>TryPeek(out value)</code></td><td>Сразу смотрит первый элемент, но не удаляет.</td></tr>
+    <tr><td><code>TryRead(out value)</code></td><td>Сразу извлекает первый элемент и удаляет.</td></tr>
+    <tr><td><code>ReadAsync()</code></td><td>Асинхронно ждёт, пока элемент появится; в этой лабораторной не используется.</td></tr>
+  </table>
+  <p>Текущий контроллер игнорирует возвращаемый <code>bool</code> у <code>TryRead/TryPeek</code>. Поэтому пустая очередь превращается в ответ <code>200</code> с <code>data: null</code>.</p>
+
+  <h2>Что нового относительно базового ASP.NET Core</h2>
+  <table>
+    <tr><th>Раньше знакомо</th><th>Здесь добавилось</th></tr>
+    <tr><td>Один запрос вызывает один action</td><td>Разные запросы взаимодействуют через общее состояние.</td></tr>
+    <tr><td><code>async/await</code> для I/O</td><td>Асинхронное ожидание места в очереди без блокировки потока.</td></tr>
+    <tr><td>DI передаёт сервис контроллеру</td><td>Singleton хранит состояние между запросами.</td></tr>
+    <tr><td>Обычные коллекции</td><td><code>ConcurrentDictionary</code> и <code>Channel&lt;T&gt;</code> рассчитаны на конкуренцию.</td></tr>
+    <tr><td><code>CancellationToken</code> запроса</td><td>Linked token объединяет отмену клиента и трёхсекундный тайм-аут.</td></tr>
+    <tr><td>HTTP-обработка</td><td>Producer/consumer, bounded buffer и backpressure.</td></tr>
+  </table>
+
+  <h2>Чем Channel не является</h2>
+  <ul>
+    <li>Это не RabbitMQ, Kafka или другой внешний брокер.</li>
+    <li>Он не передаёт данные между несколькими экземплярами приложения.</li>
+    <li>Он не сохраняет данные на диск: после перезапуска всё исчезает.</li>
+    <li>Флаг <code>IsActive=false</code> не закрывает сам <code>Channel</code>; код не вызывает <code>Writer.Complete()</code>.</li>
+  </ul>
+
+  <h2>Проверка понимания</h2>
+  <details><summary>Почему не использовать обычный Queue&lt;string&gt;?</summary><p class="answer">Обычная Queue сама не обеспечивает безопасную конкурентную запись и чтение, асинхронное ожидание и backpressure.</p></details>
+  <details><summary>Блокирует ли заполненный Channel поток на три секунды?</summary><p class="answer">Нет. WriteAsync остаётся незавершённым, а await возвращает поток в pool до освобождения места или отмены.</p></details>
+  <details><summary>Что произойдёт, если между двумя enqueue выполнить dequeue?</summary><p class="answer">Dequeue освободит место, ожидающий writer запишет второе сообщение и вернёт 200 до истечения тайм-аута.</p></details>
+
+  <p class="small">Первичный источник: <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/channels">Microsoft Learn — System.Threading.Channels</a>. Вернуться к <a href="0001-nginx-aspa-defense.html">полному разбору лабораторных</a>. Если любой шаг остаётся неясным, спросите меня — можно разобрать его на временной диаграмме.</p>
+</body>
+</html>

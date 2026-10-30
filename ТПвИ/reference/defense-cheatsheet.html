@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Шпаргалка к защите лабораторных 1–2</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <div class="eyebrow">Быстрое повторение</div>
+  <h1>Шпаргалка к защите лабораторных 1–2</h1>
+  <p class="lede">NGINX, ASP.NET Core Web API, System.Threading.Channels и Logging — на одном листе смыслов.</p>
+
+  <h2>Лаба 1: NGINX</h2>
+  <table>
+    <tr><th>Вопрос</th><th>Короткий ответ</th></tr>
+    <tr><td>Что это?</td><td>Событийный HTTP-сервер, сервер статики, reverse proxy и балансировщик.</td></tr>
+    <tr><td>Процессы</td><td><b>master</b> читает конфигурацию и управляет; <b>workers</b> обрабатывают соединения; cache loader/manager обслуживают кэш.</td></tr>
+    <tr><td>Forward proxy</td><td>Стоит со стороны клиента, скрывает клиентов от внешнего сервера.</td></tr>
+    <tr><td>Reverse proxy</td><td>Стоит со стороны серверов, принимает входящий запрос и выбирает backend.</td></tr>
+    <tr><td>Конфигурация</td><td><code>http → server → location</code>; виртуальный сервер задаётся блоком <code>server</code>.</td></tr>
+    <tr><td>Статика</td><td><code>root</code>, <code>index</code>, <code>try_files</code>.</td></tr>
+    <tr><td>Прокси</td><td><code>proxy_pass</code>; обычно передаются <code>Host</code>, <code>X-Real-IP</code>, <code>X-Forwarded-For</code>.</td></tr>
+    <tr><td>Проверка</td><td><code>nginx -t</code>, затем <code>nginx -s reload</code> или <code>systemctl reload nginx</code>.</td></tr>
+    <tr><td>Журналы</td><td><code>access_log</code> — запросы; <code>error_log</code> — диагностика.</td></tr>
+  </table>
+
+  <h2>Лаба 2: путь запроса</h2>
+  <div class="flow">
+    <span class="step">Kestrel</span><span class="arrow">→</span>
+    <span class="step">RequestLoggingMiddleware</span><span class="arrow">→</span>
+    <span class="step">Routing</span><span class="arrow">→</span>
+    <span class="step">Controller</span><span class="arrow">→</span>
+    <span class="step">ChannelRegistry</span><span class="arrow">→</span>
+    <span class="step">Channel&lt;string&gt;</span>
+  </div>
+  <p><b>Важно:</b> ответ проходит middleware в обратном направлении; поэтому оно может записать статус и тело ответа.</p>
+
+  <h3>Объекты и роли</h3>
+  <table>
+    <tr><th>Объект</th><th>Роль</th></tr>
+    <tr><td><code>ChannelRegistry</code></td><td>Singleton-реестр каналов в <code>ConcurrentDictionary</code>; живёт всё время работы процесса.</td></tr>
+    <tr><td><code>ChannelEntity</code></td><td>Метаданные канала, флаг ACTIVE/CLOSED и bounded FIFO-очередь строк.</td></tr>
+    <tr><td><code>Channel&lt;string&gt;</code></td><td>Потокобезопасная producer/consumer очередь: <code>Writer</code> пишет, <code>Reader</code> читает.</td></tr>
+    <tr><td>DTO</td><td>Контракты JSON между клиентом и API; не отдают внутренний объект очереди.</td></tr>
+    <tr><td>Controllers</td><td>Проверяют команду, выбирают действие и формируют HTTP-ответ.</td></tr>
+    <tr><td>Middleware</td><td>Перехватывает все запросы и ответы для Trace/Debug.</td></tr>
+  </table>
+
+  <h3>Очередь и статусы</h3>
+  <ul>
+    <li><code>enqueue</code> → <code>WriteAsync</code>; при свободном месте возвращает 200.</li>
+    <li>Ёмкость равна 1, режим <code>Wait</code>; второй producer ждёт освобождения места.</li>
+    <li>Через 3 секунды linked cancellation token отменяет ожидание → Warning + HTTP 408.</li>
+    <li><code>peek</code> смотрит элемент, <code>dequeue</code> извлекает; на пустой очереди оба дают 200 с <code>data: null</code>.</li>
+    <li>Неизвестный GUID → Error + 404; CLOSED-канал → Warning + 409.</li>
+  </ul>
+
+  <h2>Logging</h2>
+  <p><b>Событие</b> создаётся кодом один раз, затем проходит независимую фильтрацию для каждого провайдера. Провайдер определяет, куда вывести запись; категория и уровень — пропускать ли её.</p>
+  <table>
+    <tr><th>Уровень</th><th>Смысл в проекте</th></tr>
+    <tr><td>Trace</td><td>Вход в методы, параметры, краткая трассировка запроса/ответа.</td></tr>
+    <tr><td>Debug</td><td>Полные заголовки и тела HTTP-запроса/ответа.</td></tr>
+    <tr><td>Information</td><td>Старт/остановка приложения, жизненный цикл каналов.</td></tr>
+    <tr><td>Warning</td><td>Повторный open/close, CLOSED-канал, истечение WaitEnqueue.</td></tr>
+    <tr><td>Error</td><td>Неуспех отдельной операции, например 404.</td></tr>
+    <tr><td>Critical</td><td>Авария приложения или инфраструктуры; в обычном сценарии не генерируется.</td></tr>
+  </table>
+  <p><b>Правило порога:</b> минимальный уровень включает себя и всё серьёзнее. Например, <code>Warning</code> пропускает Warning, Error, Critical, но не Information.</p>
+
+  <h3>Куда попадают логи</h3>
+  <ul>
+    <li><b>Console:</b> Warning+ для приложения; Error+ для Microsoft.</li>
+    <li><b>Debug:</b> в Development — Debug+ для категорий <code>ASPA0011_1...</code>.</li>
+    <li><b>Logfile:</b> в Development — Trace+ для <code>ASPA0011_1...</code>; вне Development — Information+.</li>
+    <li><b>Microsoft в файл не попадает:</b> для Logfile стоит Default=None, а разрешена только категория ASPA0011_1.</li>
+  </ul>
+
+  <h2>Демонстрация за 90 секунд</h2>
+  <ol>
+    <li>Запустить проект в Development и открыть <code>app.log</code>.</li>
+    <li>POST <code>/api/channels</code> с ACTIVE → 201 и GUID.</li>
+    <li>PUT open того же GUID → 200, Warning в консоли и файле.</li>
+    <li>Первый enqueue → 200; очередь заполнена.</li>
+    <li>Второй enqueue → ожидание около 3 секунд, затем 408 и Warning.</li>
+    <li>peek → тот же первый элемент остаётся; dequeue → тот же элемент удаляется.</li>
+    <li>GET неизвестного GUID → 404 и Error.</li>
+    <li>Показать в <code>app.log</code> номера событий, дату, категорию, Trace/Debug/Information/Warning/Error.</li>
+  </ol>
+
+  <h2>Ограничения, которые полезно признать</h2>
+  <ul>
+    <li>Всё хранится в памяти и исчезает после перезапуска.</li>
+    <li>ACTIVE/CLOSED — только логический флаг; writer не завершается, канал можно снова открыть.</li>
+    <li><code>data</code> — строка с JSON внутри JSON, а не типизированный JSON-объект.</li>
+    <li>Файловый logger учебный: синхронно блокирует поток на записи и не делает ротацию.</li>
+    <li>Middleware буферизует полные тела и заголовки; в production так можно записать секреты и потратить много памяти.</li>
+  </ul>
+
+  <p class="small">Основной урок: <a href="../lessons/0001-nginx-aspa-defense.html">подробный разбор и проверочные вопросы</a>.</p>
+</body>
+</html>

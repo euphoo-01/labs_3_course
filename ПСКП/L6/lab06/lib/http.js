@@ -64,7 +64,6 @@ function sendHtml(response, html, status = 200) {
   response.writeHead(status, {
     "content-type": "text/html; charset=utf-8",
     "cache-control": "no-store",
-    "x-content-type-options": "nosniff",
     "content-security-policy":
       "default-src 'none'; style-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
   });

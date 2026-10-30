@@ -1,0 +1,16 @@
+meta {
+  name: l5
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:5000/api/ss
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

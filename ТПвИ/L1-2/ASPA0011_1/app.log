@@ -1,0 +1,100 @@
+2026-10-27 17:36:03.797 #0001 [Information] ASPA0011_1.Application (ApplicationStarted) Application started
+2026-10-27 17:36:21.764 #0002 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request POST /api/channels
+2026-10-27 17:36:21.776 #0003 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=POST; path=/api/channels; query=; headers=[Accept=*/*; Host=localhost:5080; User-Agent=curl/8.22.0; Content-Type=application/json; Content-Length=77]; body={"command":"new","name":"demo","state":"ACTIVE","description":"Demo channel"}
+2026-10-27 17:36:21.795 #0004 [Trace] ASPA0011_1.Controllers.ChannelsController (ChannelsControllerCreated) ChannelsController created
+2026-10-27 17:36:21.822 #0005 [Trace] ASPA0011_1.Controllers.ChannelsController (CreateChannelCalled) POST create channel: command=new, name=demo, state=ACTIVE
+2026-10-27 17:36:21.828 #0006 [Information] ASPA0011_1.Controllers.ChannelsController (ChannelCreated) Channel b1716203-8013-4efb-b34b-35271c848596 created. Name=demo, State=ACTIVE
+2026-10-27 17:36:21.851 #0007 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 201 for POST /api/channels
+2026-10-27 17:36:21.851 #0008 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=201; contentType=application/json; charset=utf-8; body={"id":"b1716203-8013-4efb-b34b-35271c848596","name":"demo","state":"ACTIVE","description":"Demo channel"}
+2026-10-27 17:36:32.357 #0009 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request PUT /api/channels
+2026-10-27 17:36:32.358 #0010 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=PUT; path=/api/channels; query=; headers=[Accept=*/*; Host=localhost:5080; User-Agent=curl/8.22.0; Content-Type=application/json; Content-Length=62]; body={"command":"open","id":"b1716203-8013-4efb-b34b-35271c848596"}
+2026-10-27 17:36:32.359 #0011 [Trace] ASPA0011_1.Controllers.ChannelsController (ChannelsControllerCreated) ChannelsController created
+2026-10-27 17:36:32.368 #0012 [Trace] ASPA0011_1.Controllers.ChannelsController (ChangeStateCalled) PUT channels: command=open, id=b1716203-8013-4efb-b34b-35271c848596, reason=(null), state=(null)
+2026-10-27 17:36:32.370 #0013 [Warning] ASPA0011_1.Controllers.ChannelsController (OpenAlreadyOpen) OPEN requested for already ACTIVE channel b1716203-8013-4efb-b34b-35271c848596
+2026-10-27 17:36:32.371 #0014 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 200 for PUT /api/channels
+2026-10-27 17:36:32.371 #0015 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=200; contentType=application/json; charset=utf-8; body={"id":"b1716203-8013-4efb-b34b-35271c848596","name":"demo","state":"ACTIVE","description":"Demo channel"}
+2026-10-27 17:36:32.378 #0016 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request POST /api/queue
+2026-10-27 17:36:32.378 #0017 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=POST; path=/api/queue; query=; headers=[Accept=*/*; Host=localhost:5080; User-Agent=curl/8.22.0; Content-Type=application/json; Content-Length=98]; body={"command":"enqueue","id":"b1716203-8013-4efb-b34b-35271c848596","data":"{\"message\":\"first\"}"}
+2026-10-27 17:36:32.385 #0018 [Trace] ASPA0011_1.Controllers.QueueController (QueueControllerCreated) QueueController created
+2026-10-27 17:36:32.388 #0019 [Trace] ASPA0011_1.Controllers.QueueController (QueueCommandCalled) POST /api/queue command=enqueue, id=b1716203-8013-4efb-b34b-35271c848596, data={"message":"first"}
+2026-10-27 17:36:32.390 #0020 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 200 for POST /api/queue
+2026-10-27 17:36:32.390 #0021 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=200; contentType=application/json; charset=utf-8; body={"id":"b1716203-8013-4efb-b34b-35271c848596","data":"{\"message\":\"first\"}"}
+2026-10-27 17:36:32.397 #0022 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request POST /api/queue
+2026-10-27 17:36:32.398 #0023 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=POST; path=/api/queue; query=; headers=[Accept=*/*; Host=localhost:5080; User-Agent=curl/8.22.0; Content-Type=application/json; Content-Length=99]; body={"command":"enqueue","id":"b1716203-8013-4efb-b34b-35271c848596","data":"{\"message\":\"second\"}"}
+2026-10-27 17:36:32.398 #0024 [Trace] ASPA0011_1.Controllers.QueueController (QueueControllerCreated) QueueController created
+2026-10-27 17:36:32.398 #0025 [Trace] ASPA0011_1.Controllers.QueueController (QueueCommandCalled) POST /api/queue command=enqueue, id=b1716203-8013-4efb-b34b-35271c848596, data={"message":"second"}
+2026-10-27 17:36:35.400 #0026 [Warning] ASPA0011_1.Controllers.QueueController (WaitEnqueueExpired) WaitEnqueue expired after 3 s for channel b1716203-8013-4efb-b34b-35271c848596
+2026-10-27 17:36:35.406 #0027 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 408 for POST /api/queue
+2026-10-27 17:36:35.406 #0028 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=408; contentType=application/json; charset=utf-8; body={"error":"WaitEnqueue expired","waitEnqueue":3,"id":"b1716203-8013-4efb-b34b-35271c848596"}
+2026-10-27 17:36:35.413 #0029 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request POST /api/queue
+2026-10-27 17:36:35.413 #0030 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=POST; path=/api/queue; query=; headers=[Accept=*/*; Host=localhost:5080; User-Agent=curl/8.22.0; Content-Type=application/json; Content-Length=62]; body={"command":"peek","id":"b1716203-8013-4efb-b34b-35271c848596"}
+2026-10-27 17:36:35.413 #0031 [Trace] ASPA0011_1.Controllers.QueueController (QueueControllerCreated) QueueController created
+2026-10-27 17:36:35.414 #0032 [Trace] ASPA0011_1.Controllers.QueueController (QueueCommandCalled) POST /api/queue command=peek, id=b1716203-8013-4efb-b34b-35271c848596, data=(null)
+2026-10-27 17:36:35.414 #0033 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 200 for POST /api/queue
+2026-10-27 17:36:35.414 #0034 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=200; contentType=application/json; charset=utf-8; body={"id":"b1716203-8013-4efb-b34b-35271c848596","data":"{\"message\":\"first\"}"}
+2026-10-27 17:36:35.419 #0035 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request POST /api/queue
+2026-10-27 17:36:35.419 #0036 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=POST; path=/api/queue; query=; headers=[Accept=*/*; Host=localhost:5080; User-Agent=curl/8.22.0; Content-Type=application/json; Content-Length=65]; body={"command":"dequeue","id":"b1716203-8013-4efb-b34b-35271c848596"}
+2026-10-27 17:36:35.419 #0037 [Trace] ASPA0011_1.Controllers.QueueController (QueueControllerCreated) QueueController created
+2026-10-27 17:36:35.419 #0038 [Trace] ASPA0011_1.Controllers.QueueController (QueueCommandCalled) POST /api/queue command=dequeue, id=b1716203-8013-4efb-b34b-35271c848596, data=(null)
+2026-10-27 17:36:35.420 #0039 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 200 for POST /api/queue
+2026-10-27 17:36:35.420 #0040 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=200; contentType=application/json; charset=utf-8; body={"id":"b1716203-8013-4efb-b34b-35271c848596","data":"{\"message\":\"first\"}"}
+2026-10-27 17:36:35.425 #0041 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request GET /api/channels/11111111-1111-1111-1111-111111111111
+2026-10-27 17:36:35.425 #0042 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=GET; path=/api/channels/11111111-1111-1111-1111-111111111111; query=; headers=[Accept=*/*; Host=localhost:5080; User-Agent=curl/8.22.0]; body=
+2026-10-27 17:36:35.426 #0043 [Trace] ASPA0011_1.Controllers.ChannelsController (ChannelsControllerCreated) ChannelsController created
+2026-10-27 17:36:35.427 #0044 [Trace] ASPA0011_1.Controllers.ChannelsController (GetChannelCalled) GET channel, id=11111111-1111-1111-1111-111111111111
+2026-10-27 17:36:35.427 #0045 [Error] ASPA0011_1.Controllers.ChannelsController (ChannelNotFound) Channel 11111111-1111-1111-1111-111111111111 not found. HTTP 404
+2026-10-27 17:36:35.429 #0046 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 404 for GET /api/channels/11111111-1111-1111-1111-111111111111
+2026-10-27 17:36:35.429 #0047 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=404; contentType=application/json; charset=utf-8; body={"error":"Channel 11111111-1111-1111-1111-111111111111 not found"}
+2026-10-27 17:36:43.482 #0048 [Information] ASPA0011_1.Application (ApplicationStopping) Application is stopping
+2026-10-28 08:18:35.726 #0001 [Information] ASPA0011_1.Application (ApplicationStarted) Application started
+2026-10-28 08:18:55.289 #0002 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request GET /api/channels
+2026-10-28 08:18:55.296 #0003 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=GET; path=/api/channels; query=; headers=[Accept=application/json, text/plain, */*; Connection=keep-alive; Host=localhost:5080; User-Agent=bruno-runtime/2.14.2; Accept-Encoding=gzip, compress, deflate, br; request-start-time=1793164735191]; body=
+2026-10-28 08:18:55.320 #0004 [Trace] ASPA0011_1.Controllers.ChannelsController (ChannelsControllerCreated) ChannelsController created
+2026-10-28 08:18:55.324 #0005 [Trace] ASPA0011_1.Controllers.ChannelsController (GetAllCalled) GET /api/channels called
+2026-10-28 08:18:55.334 #0006 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 204 for GET /api/channels
+2026-10-28 08:18:55.335 #0007 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=204; contentType=(null); body=
+2026-10-28 08:19:01.635 #0008 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request POST /api/channels
+2026-10-28 08:19:01.641 #0009 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=POST; path=/api/channels; query=; headers=[Accept=application/json, text/plain, */*; Connection=keep-alive; Host=localhost:5080; User-Agent=bruno-runtime/2.14.2; Accept-Encoding=gzip, compress, deflate, br; Content-Type=application/json; Content-Length=91; request-start-time=1793164741623]; body={
+  "command": "new",
+  "name": "demo",
+  "state": "ACTIVE",
+  "description": "blablabla"
+}
+2026-10-28 08:19:01.653 #0010 [Trace] ASPA0011_1.Controllers.ChannelsController (ChannelsControllerCreated) ChannelsController created
+2026-10-28 08:19:01.751 #0011 [Trace] ASPA0011_1.Controllers.ChannelsController (CreateChannelCalled) POST create channel: command=new, name=demo, state=ACTIVE
+2026-10-28 08:19:01.756 #0012 [Information] ASPA0011_1.Controllers.ChannelsController (ChannelCreated) Channel de98739a-a34a-46c2-9441-98e444654a2d created. Name=demo, State=ACTIVE
+2026-10-28 08:19:01.808 #0013 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 201 for POST /api/channels
+2026-10-28 08:19:01.808 #0014 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=201; contentType=application/json; charset=utf-8; body={"id":"de98739a-a34a-46c2-9441-98e444654a2d","name":"demo","state":"ACTIVE","description":"blablabla"}
+2026-10-28 08:19:06.024 #0015 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request GET /api/channels/1
+2026-10-28 08:19:06.025 #0016 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=GET; path=/api/channels/1; query=; headers=[Accept=application/json, text/plain, */*; Connection=keep-alive; Host=localhost:5080; User-Agent=bruno-runtime/2.14.2; Accept-Encoding=gzip, compress, deflate, br; request-start-time=1793164746020]; body=
+2026-10-28 08:19:06.025 #0017 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 404 for GET /api/channels/1
+2026-10-28 08:19:06.025 #0018 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=404; contentType=(null); body=
+2026-10-28 08:19:09.068 #0019 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request GET /api/channels/0
+2026-10-28 08:19:09.069 #0020 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=GET; path=/api/channels/0; query=; headers=[Accept=application/json, text/plain, */*; Connection=keep-alive; Host=localhost:5080; User-Agent=bruno-runtime/2.14.2; Accept-Encoding=gzip, compress, deflate, br; request-start-time=1793164749067]; body=
+2026-10-28 08:19:09.069 #0021 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 404 for GET /api/channels/0
+2026-10-28 08:19:09.069 #0022 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=404; contentType=(null); body=
+2026-10-28 08:19:20.225 #0023 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request GET /api/channels/de98739a-a34a-46c2-9441-98e444654a2d
+2026-10-28 08:19:20.226 #0024 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=GET; path=/api/channels/de98739a-a34a-46c2-9441-98e444654a2d; query=; headers=[Accept=application/json, text/plain, */*; Connection=keep-alive; Host=localhost:5080; User-Agent=bruno-runtime/2.14.2; Accept-Encoding=gzip, compress, deflate, br; request-start-time=1793164760223]; body=
+2026-10-28 08:19:20.230 #0025 [Trace] ASPA0011_1.Controllers.ChannelsController (ChannelsControllerCreated) ChannelsController created
+2026-10-28 08:19:20.232 #0026 [Trace] ASPA0011_1.Controllers.ChannelsController (GetChannelCalled) GET channel, id=de98739a-a34a-46c2-9441-98e444654a2d
+2026-10-28 08:19:20.233 #0027 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 200 for GET /api/channels/de98739a-a34a-46c2-9441-98e444654a2d
+2026-10-28 08:19:20.233 #0028 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=200; contentType=application/json; charset=utf-8; body={"id":"de98739a-a34a-46c2-9441-98e444654a2d","name":"demo","state":"ACTIVE","description":"blablabla"}
+2026-10-28 08:19:25.082 #0029 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request PUT /api/channels
+2026-10-28 08:19:25.084 #0030 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=PUT; path=/api/channels; query=; headers=[Accept=application/json, text/plain, */*; Connection=keep-alive; Host=localhost:5080; User-Agent=bruno-runtime/2.14.2; Accept-Encoding=gzip, compress, deflate, br; Content-Type=application/json; Content-Length=41; request-start-time=1793164765080]; body={
+  "command": "open",
+  "id": "{{id}}"
+}
+2026-10-28 08:19:25.089 #0031 [Trace] ASPA0011_1.Controllers.ChannelsController (ChannelsControllerCreated) ChannelsController created
+2026-10-28 08:19:25.166 #0032 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 400 for PUT /api/channels
+2026-10-28 08:19:25.166 #0033 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=400; contentType=application/problem+json; charset=utf-8; body={"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"request":["The request field is required."],"$.id":["The JSON value could not be converted to System.Nullable`1[System.Guid]. Path: $.id | LineNumber: 2 | BytePositionInLine: 16."]},"traceId":"00-e05cd0a5953ea21d985f4d0708a4464b-5bf7ff69fad59ec3-00"}
+2026-10-28 08:19:33.401 #0034 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestTrace) Request PUT /api/channels
+2026-10-28 08:19:33.402 #0035 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (RequestDebug) REQUEST method=PUT; path=/api/channels; query=; headers=[Accept=application/json, text/plain, */*; Connection=keep-alive; Host=localhost:5080; User-Agent=bruno-runtime/2.14.2; Accept-Encoding=gzip, compress, deflate, br; Content-Type=application/json; Content-Length=71; request-start-time=1793164773387]; body={
+  "command": "open",
+  "id": "de98739a-a34a-46c2-9441-98e444654a2d"
+}
+2026-10-28 08:19:33.402 #0036 [Trace] ASPA0011_1.Controllers.ChannelsController (ChannelsControllerCreated) ChannelsController created
+2026-10-28 08:19:33.407 #0037 [Trace] ASPA0011_1.Controllers.ChannelsController (ChangeStateCalled) PUT channels: command=open, id=de98739a-a34a-46c2-9441-98e444654a2d, reason=(null), state=(null)
+2026-10-28 08:19:33.412 #0038 [Warning] ASPA0011_1.Controllers.ChannelsController (OpenAlreadyOpen) OPEN requested for already ACTIVE channel de98739a-a34a-46c2-9441-98e444654a2d
+2026-10-28 08:19:33.413 #0039 [Trace] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseTrace) Response 200 for PUT /api/channels
+2026-10-28 08:19:33.413 #0040 [Debug] ASPA0011_1.Middleware.RequestLoggingMiddleware (ResponseDebug) RESPONSE status=200; contentType=application/json; charset=utf-8; body={"id":"de98739a-a34a-46c2-9441-98e444654a2d","name":"demo","state":"ACTIVE","description":"blablabla"}
+2026-10-28 08:36:06.220 #0041 [Information] ASPA0011_1.Application (ApplicationStopping) Application is stopping

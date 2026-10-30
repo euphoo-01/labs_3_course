@@ -87,7 +87,7 @@ function sendBadRequest(response) {
     });
 
     response.end(JSON.stringify({
-        error: 'Parameter k must be a non-negative integer'
+        error: 'Параметр k должен быть положительным'
     }));
 }
 
@@ -166,7 +166,7 @@ var server = http.createServer(function (request, response) {
         response.writeHead(200, {
             'Content-Type': 'text/html; charset=utf-8'
         });
-        response.end(createTestPage('Задание 03 - обычный факториал', '/fact'));
+        response.end(createTestPage('Обычный факториал', '/fact'));
     }
 
     else if (pathname === '/fact-nexttick') {
@@ -188,7 +188,7 @@ var server = http.createServer(function (request, response) {
         response.writeHead(200, {
             'Content-Type': 'text/html; charset=utf-8'
         });
-        response.end(createTestPage('Задание 04 - process.nextTick', '/fact-nexttick'));
+        response.end(createTestPage('Факториал nextTick', '/fact-nexttick'));
     }
 
     else if (pathname === '/fact-immediate') {
@@ -210,7 +210,7 @@ var server = http.createServer(function (request, response) {
         response.writeHead(200, {
             'Content-Type': 'text/html; charset=utf-8'
         });
-        response.end(createTestPage('Задание 05 - setImmediate', '/fact-immediate'));
+        response.end(createTestPage('Факториал setImmediate', '/fact-immediate'));
     }
 
     else {
@@ -219,14 +219,7 @@ var server = http.createServer(function (request, response) {
         });
         response.end('Not found');
     }
-});
-
-server.listen(PORT, () => {
+}).listen(PORT, () => {
     console.log('\nServer running at http://localhost:' + PORT + '/');
-    console.log('Task 01: http://localhost:' + PORT + '/');
-    console.log('Task 02: http://localhost:' + PORT + '/fact?k=3');
-    console.log('Task 03: http://localhost:' + PORT + '/sync');
-    console.log('Task 04: http://localhost:' + PORT + '/nexttick');
-    console.log('Task 05: http://localhost:' + PORT + '/immediate');
     process.stdout.write(state + '->');
 });

@@ -61,3 +61,9 @@ small {
   background: #fff1ef;
   color: #a32f1f;
 }
+
+form {
+  display: flex;
+  flex-flow: column wrap;
+  gap: 16px;
+}

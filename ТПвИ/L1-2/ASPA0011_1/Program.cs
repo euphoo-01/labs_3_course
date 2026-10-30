@@ -8,7 +8,6 @@ builder.Services.AddControllers();
 builder.Services.Configure<AppOptions>(builder.Configuration.GetSection("App"));
 builder.Services.AddSingleton<ChannelRegistry>();
 
-// По лекции: очищаем стандартный набор провайдеров и явно подключаем нужные.
 builder.Logging.ClearProviders();
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();

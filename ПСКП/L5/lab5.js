@@ -58,6 +58,7 @@ function stopStatistics() {
         isCollectingStats = false;
         console.log('Statistics collection stopped');
     }
+    console.log(statistics);
 }
 
 function startStatistics(seconds) {

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Как устроены лабораторные 1–2</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <div class="eyebrow">Урок 0001 · подготовка к защите</div>
+  <h1>От NGINX до очереди и логов в ASP.NET Core</h1>
+  <p class="lede">Цель — не заучить строки кода, а удерживать одну модель: кто принимает запрос, кто маршрутизирует его, где живёт состояние и почему одна запись видна в файле, но не в консоли.</p>
+
+  <nav class="toc" aria-label="Содержание">
+    <a href="#big-picture">1. Общая картина</a>
+    <a href="#nginx">2. Теория NGINX</a>
+    <a href="#startup">3. Запуск ASP.NET Core</a>
+    <a href="#data">4. Модель каналов</a>
+    <a href="#requests">5. Путь запросов</a>
+    <a href="#logging">6. Logging</a>
+    <a href="#demo">7. Демонстрация</a>
+    <a href="#quiz">8. Вопросы защиты</a>
+  </nav>
+
+  <section id="big-picture">
+    <h2>1. Общая картина двух работ</h2>
+    <div class="flow">
+      <span class="step">Клиент / Postman</span><span class="arrow">→</span>
+      <span class="step">NGINX</span><span class="arrow">→</span>
+      <span class="step">Kestrel + ASP.NET Core</span><span class="arrow">→</span>
+      <span class="step">Controller</span><span class="arrow">→</span>
+      <span class="step">Channel&lt;string&gt;</span>
+    </div>
+    <p>В первой работе изучается внешний вход в веб-систему: NGINX может отдать статический файл сам или передать динамический запрос backend-приложению. Во второй работе реализован сам backend. В текущем репозитории NGINX не подключён к приложению физически — связь концептуальная, по архитектуре веб-системы.</p>
+    <div class="note"><b>Не путать два значения слова «канал».</b> В NGINX это не основной термин. В лабораторной 2 канал — объект с GUID, состоянием и очередью <code>System.Threading.Channels.Channel&lt;string&gt;</code>.</div>
+  </section>
+
+  <section id="nginx">
+    <h2>2. Теория первой лабораторной: NGINX</h2>
+    <h3>Что такое NGINX</h3>
+    <p>NGINX — событийный HTTP-сервер. Он умеет обслуживать статические файлы, завершать TLS, работать reverse proxy, распределять запросы между несколькими backend-серверами и взаимодействовать с приложениями через HTTP, FastCGI, SCGI или uWSGI.</p>
+
+    <div class="grid">
+      <article class="card">
+        <h3>Forward proxy</h3>
+        <p>Клиент сознательно отправляет трафик прокси. Внешний сервер видит адрес прокси, а не конечного клиента. Защищается или контролируется сторона клиентов.</p>
+      </article>
+      <article class="card">
+        <h3>Reverse proxy</h3>
+        <p>Клиент обращается к публичному серверу и может не знать о backend. Прокси скрывает внутренние серверы, балансирует нагрузку и централизует TLS, кэш и журналы.</p>
+      </article>
+    </div>
+
+    <h3>Почему NGINX выдерживает много соединений</h3>
+    <p>Один <b>master process</b> читает конфигурацию, проверяет её и управляет рабочими процессами. Несколько <b>worker processes</b> фактически обрабатывают соединения. Worker использует неблокирующую событийную модель, поэтому ему не нужен отдельный поток на каждый ожидающий сетевой запрос. Cache loader загружает метаданные кэша при старте, cache manager следит за его размером и устареванием.</p>
+
+    <h3>Конфигурационная иерархия</h3>
+    <pre><code>events { worker_connections 1024; }
+
+http {
+  server {
+    listen 80;
+    server_name example.test;
+
+    location / {
+      root /var/www/app;
+      try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+      proxy_pass http://127.0.0.1:5080;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+}</code></pre>
+    <ul>
+      <li><code>http</code> содержит настройки HTTP-подсистемы.</li>
+      <li><code>server</code> описывает виртуальный сервер: адрес, порт и имя.</li>
+      <li><code>location</code> выбирается по URI и определяет обработку части запросов.</li>
+      <li><code>root</code> сопоставляет URI с каталогом; <code>index</code> задаёт стартовый файл.</li>
+      <li><code>try_files ... /index.html</code> важен для SPA: неизвестный браузерный маршрут должен открыть React-приложение, а не дать 404.</li>
+      <li><code>proxy_pass</code> передаёт запрос backend. Заголовки сохраняют имя хоста и реальный адрес клиента.</li>
+    </ul>
+    <p>Типичные расположения: основной файл <code>/etc/nginx/nginx.conf</code>, дополнительные конфигурации — <code>/etc/nginx/conf.d/*.conf</code>; в Debian/Ubuntu часто есть <code>sites-available</code> и ссылки в <code>sites-enabled</code>.</p>
+    <pre><code>nginx -t                 # проверить синтаксис и ссылки на файлы
+nginx -s reload          # применить конфигурацию без жёсткой остановки
+systemctl status nginx   # состояние сервиса
+systemctl reload nginx   # reload через systemd
+ps -ax | grep nginx      # увидеть master и workers
+nproc                    # число доступных CPU</code></pre>
+    <p>При reload master проверяет новую конфигурацию. Если она корректна, запускает новых workers, а старые перестают принимать новые соединения и заканчивают уже начатые. Это graceful reload.</p>
+    <div class="warning"><b>Частая ошибка на защите:</b> «NGINX запускает C#-код». Обычно нет. Для ASP.NET Core NGINX проксирует HTTP-запрос Kestrel. FastCGI типичнее для PHP, uWSGI — для соответствующего Python-стека.</div>
+  </section>
+
+  <section id="startup">
+    <h2>3. Как собирается приложение в Program.cs</h2>
+    <ol>
+      <li><code>CreateBuilder(args)</code> создаёт host, DI-контейнер, конфигурацию и logging infrastructure.</li>
+      <li><code>AddControllers()</code> регистрирует MVC-контроллеры и model binding.</li>
+      <li><code>Configure&lt;AppOptions&gt;</code> связывает секцию <code>App</code> с типизированными настройками.</li>
+      <li><code>AddSingleton&lt;ChannelRegistry&gt;</code> создаёт один общий реестр на весь процесс.</li>
+      <li><code>ClearProviders</code> удаляет стандартный набор; затем явно добавляются Console, Debug и собственный File provider.</li>
+      <li><code>Build()</code> завершает конфигурацию приложения.</li>
+      <li><code>UseMiddleware&lt;RequestLoggingMiddleware&gt;</code> ставит перехватчик в конвейер.</li>
+      <li><code>MapControllers()</code> создаёт endpoints по атрибутам маршрутизации.</li>
+      <li><code>ApplicationStarted/Stopping</code> пишут Information о жизненном цикле.</li>
+      <li><code>Run()</code> запускает Kestrel и удерживает процесс.</li>
+    </ol>
+    <p>DI сам передаёт <code>ChannelRegistry</code> и <code>ILogger&lt;T&gt;</code> в конструкторы контроллеров. Реестр singleton, а контроллер создаётся при обработке запроса; поэтому в логе видно повторяющееся событие <code>ControllerCreated</code>.</p>
+  </section>
+
+  <section id="data">
+    <h2>4. Где живут данные и почему выбран Channel</h2>
+    <p><code>ChannelRegistry</code> содержит <code>ConcurrentDictionary&lt;Guid, ChannelEntity&gt;</code>. Обычный <code>Dictionary</code> небезопасен при параллельных HTTP-запросах, а concurrent-коллекция поддерживает атомарные операции поиска, добавления и удаления.</p>
+    <p>Каждый <code>ChannelEntity</code> содержит GUID, имя, описание, логический флаг активности и <code>Channel&lt;string&gt;</code>. Очередь ограниченная: <code>QueueCapacity=1</code>, <code>FullMode=Wait</code>. Она работает по producer/consumer-модели и в данном сценарии сохраняет FIFO-порядок.</p>
+    <div class="flow">
+      <span class="step">enqueue: Writer.WriteAsync</span><span class="arrow">→</span>
+      <span class="step">bounded FIFO</span><span class="arrow">→</span>
+      <span class="step">dequeue: Reader.TryRead</span>
+    </div>
+    <p>Когда единственное место занято, второй <code>WriteAsync</code> не блокирует поток синхронно, а асинхронно ждёт. Это <b>backpressure</b>: быстрый producer замедляется до скорости consumer. В лабораторной ожидание ограничено <code>WaitEnqueue=3</code>.</p>
+    <pre><code>using var timeout = CancellationTokenSource
+  .CreateLinkedTokenSource(requestAborted);
+timeout.CancelAfter(TimeSpan.FromSeconds(3));
+await channel.Queue.Writer.WriteAsync(data, timeout.Token);</code></pre>
+    <p>Linked token объединяет две причины отмены: клиент разорвал HTTP-запрос или истёк таймер. Catch-фильтр превращает только внутренний тайм-аут в HTTP 408.</p>
+    <div class="note"><b>CLOSED не означает Complete.</b> Код меняет только <code>IsActive</code>. Он не вызывает <code>Queue.Writer.Complete()</code>, поэтому накопленные данные остаются, а канал можно снова открыть.</div>
+  </section>
+
+  <section id="requests">
+    <h2>5. Что происходит при HTTP-запросе</h2>
+    <h3>Пример: POST /api/queue, команда enqueue</h3>
+    <ol>
+      <li>Kestrel принимает HTTP-запрос.</li>
+      <li>Middleware читает и возвращает на начало тело запроса, пишет Trace и Debug.</li>
+      <li>Маршрутизация выбирает <code>QueueController.Execute</code>.</li>
+      <li>Model binding превращает JSON в <code>QueueCommandRequest</code>.</li>
+      <li>Контроллер ищет GUID в singleton-реестре и проверяет ACTIVE.</li>
+      <li><code>Enqueue</code> проверяет <code>data</code> и вызывает <code>WriteAsync</code> с тайм-аутом.</li>
+      <li>Результат превращается в <code>IActionResult</code>, затем JSON и HTTP-статус.</li>
+      <li>На обратном пути middleware читает буфер ответа, логирует его и копирует клиенту.</li>
+    </ol>
+
+    <table>
+      <tr><th>Действие</th><th>Основной результат</th><th>Почему</th></tr>
+      <tr><td>GET пустого списка</td><td>204</td><td>Нет тела ответа.</td></tr>
+      <tr><td>Создать ACTIVE</td><td>201 + JSON + Location</td><td>Создан новый ресурс; <code>CreatedAtAction</code>.</td></tr>
+      <tr><td>Создать CLOSED</td><td>204</td><td>Так требует методичка; объект при этом реально сохраняется в реестре.</td></tr>
+      <tr><td>Неизвестный GUID</td><td>404 + Error</td><td>Ресурс не найден.</td></tr>
+      <tr><td>Операция с CLOSED</td><td>409 + Warning</td><td>Канал существует, но состояние конфликтует с операцией.</td></tr>
+      <tr><td>Повторный open/close</td><td>200 + Warning</td><td>Команда идемпотентна по состоянию, но аномалия фиксируется.</td></tr>
+      <tr><td>Переполненный enqueue</td><td>408 + Warning</td><td>За 3 секунды место не освободилось.</td></tr>
+      <tr><td>Пустой peek/dequeue</td><td>200, data=null</td><td><code>TryPeek/TryRead</code> возвращают false; код не меняет статус.</td></tr>
+    </table>
+  </section>
+
+  <section id="logging">
+    <h2>6. Теория и практика Logging</h2>
+    <p>Logging состоит из четырёх независимых понятий:</p>
+    <ul>
+      <li><b>ILogger</b> — API, через которое код создаёт событие.</li>
+      <li><b>Уровень</b> — серьёзность: Trace, Debug, Information, Warning, Error, Critical.</li>
+      <li><b>Категория</b> — источник события. У <code>ILogger&lt;QueueController&gt;</code> это полное имя класса.</li>
+      <li><b>Провайдер</b> — получатель: Console, Debug, Logfile. Одно событие может уйти сразу в несколько.</li>
+    </ul>
+    <p>Фильтр выбирается отдельно для пары «провайдер + категория». Значение уровня — минимальный порог. <code>Information</code> пропускает Information, Warning, Error и Critical; оно <span class="bad">не включает Trace и Debug</span>. В формулировке слайда лекции здесь легко оговориться.</p>
+
+    <table>
+      <tr><th>Провайдер</th><th>Обычная конфигурация</th><th>Development добавляет</th></tr>
+      <tr><td>Console</td><td>ASPA: Warning+; Microsoft: Error+</td><td>Ничего</td></tr>
+      <tr><td>Debug</td><td>None</td><td>ASPA: Debug+</td></tr>
+      <tr><td>Logfile</td><td>ASPA: Information+; остальные None</td><td>ASPA: Trace+</td></tr>
+    </table>
+    <p><code>[ProviderAlias("Logfile")]</code> связывает имя секции <code>Logging:Logfile</code> с пользовательским провайдером. Фабрика логгеров отбрасывает запрещённые события до вызова <code>FileLogger.Log</code>.</p>
+
+    <h3>Как устроен FileLogger</h3>
+    <ul>
+      <li><code>FileLoggerProvider.CreateLogger(categoryName)</code> создаёт логгер для категории.</li>
+      <li><code>Log</code> форматирует дату, EventId, уровень, категорию, имя события и сообщение.</li>
+      <li><code>Interlocked.Increment</code> выдаёт уникальный номер события безопасно при конкуренции.</li>
+      <li><code>lock</code> не позволяет нескольким запросам одновременно перемешать строки файла.</li>
+    </ul>
+    <div class="warning"><b>Учебная, не production-реализация.</b> <code>File.AppendAllText</code> синхронно открывает/пишет файл на каждом событии, нет очереди, batch-записи и ротации. Middleware записывает тела и заголовки без маскировки секретов.</div>
+  </section>
+
+  <section id="demo">
+    <h2>7. Проверенный сценарий демонстрации</h2>
+    <p>Проект успешно собирается. На фактическом запуске получена следующая цепочка:</p>
+    <ol>
+      <li>ACTIVE-канал создан: <b>201 Created</b>, сервер вернул GUID и заголовок Location.</li>
+      <li>Повторный open: <b>200 OK</b>, в консоли и файле появился Warning.</li>
+      <li>Первый enqueue: <b>200 OK</b>, единственное место занято.</li>
+      <li>Второй enqueue: через <b>3.01 секунды</b> вернулся <b>408 Request Timeout</b>.</li>
+      <li>peek вернул первый элемент, не удалив его.</li>
+      <li>dequeue вернул тот же первый элемент и удалил его.</li>
+      <li>GET неизвестного GUID: <b>404 Not Found</b>, в консоли и файле появился Error.</li>
+    </ol>
+    <p>В <code>app.log</code> подтверждены последовательные EventId, timestamp, категории и события всех уровней от Trace до Error. Для локального запуска на проверенной машине пришлось разрешить major roll-forward, потому что проект нацелен на .NET 8, а установлены runtime 9 и 10. На лабораторном компьютере с .NET 8 обычного <code>dotnet run</code> достаточно.</p>
+  </section>
+
+  <section id="quiz">
+    <h2>8. Вопросы защиты: сначала ответьте вслух</h2>
+    <p>Не раскрывайте ответ, пока не сформулировали свой. Это важнее повторного чтения.</p>
+
+    <details><summary>1. Чем reverse proxy отличается от forward proxy?</summary><p class="answer">Forward proxy представляет клиентов перед внешними серверами; reverse proxy представляет внутренние серверы перед клиентами.</p></details>
+    <details><summary>2. Что делают master и worker процессы NGINX?</summary><p class="answer">Master читает и применяет конфигурацию и управляет workers. Workers в событийной модели обрабатывают сетевые соединения и HTTP-запросы.</p></details>
+    <details><summary>3. Зачем сначала выполнять nginx -t?</summary><p class="answer">Чтобы проверить синтаксис и доступность связанных файлов до reload и не пытаться применить ошибочную конфигурацию.</p></details>
+    <details><summary>4. Почему ChannelRegistry зарегистрирован как Singleton?</summary><p class="answer">Все HTTP-запросы должны видеть один общий набор созданных каналов. Новый registry на каждый запрос терял бы общую очередь.</p></details>
+    <details><summary>5. Зачем ConcurrentDictionary, если Channel потокобезопасен?</summary><p class="answer">Channel защищает операции своей очереди, но не коллекцию всех ChannelEntity. Реестр отдельно должен выдерживать параллельные добавления, поиски и удаления.</p></details>
+    <details><summary>6. Почему второй enqueue не завершается сразу?</summary><p class="answer">Bounded channel имеет capacity 1 и FullMode.Wait. После первого элемента producer получает backpressure и WriteAsync ждёт свободного места.</p></details>
+    <details><summary>7. Чем peek отличается от dequeue?</summary><p class="answer">TryPeek читает первый элемент без удаления; TryRead возвращает и удаляет его.</p></details>
+    <details><summary>8. Что такое linked cancellation token?</summary><p class="answer">Токен, который отменяется при любой из связанных причин: отмене HTTP-запроса клиентом или истечении внутреннего тайм-аута.</p></details>
+    <details><summary>9. Уйдёт ли Information в Console при пороге Warning?</summary><p class="answer">Нет. Порог Warning пропускает Warning, Error и Critical. Более подробные уровни отбрасываются.</p></details>
+    <details><summary>10. Почему Microsoft Error не попадает в app.log?</summary><p class="answer">Для провайдера Logfile Default=None, а разрешён префикс категории ASPA0011_1. Категория Microsoft под это правило не подходит.</p></details>
+    <details><summary>11. Почему middleware возвращает Position тела запроса в 0?</summary><p class="answer">После чтения поток находится в конце. EnableBuffering и сброс позиции позволяют model binding затем прочитать тот же JSON.</p></details>
+    <details><summary>12. Что исчезнет после перезапуска?</summary><p class="answer">Все ChannelEntity и сообщения, потому что registry и очереди находятся только в памяти процесса. Файл app.log останется.</p></details>
+
+    <div class="success"><b>Критерий готовности:</b> если вы можете без кода объяснить вопросы 1–12 и затем провести сценарий из семи запросов, базовая защита закрыта.</div>
+  </section>
+
+  <h2>Дальше</h2>
+  <p>Откройте <a href="../reference/defense-cheatsheet.html">шпаргалку</a>, закройте подробный урок и проговорите весь путь запроса за две минуты. Если какой-то шаг проваливается, задайте мне точечный вопрос или пришлите свои ответы на 12 вопросов — я проверю их как преподаватель.</p>
+  <p class="small">Первоисточники: <a href="https://nginx.org/en/docs/beginners_guide.html">NGINX Beginner’s Guide</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/channels">System.Threading.Channels</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/logging">.NET Logging</a>, <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/">ASP.NET Core middleware</a>.</p>
+</body>
+</html>

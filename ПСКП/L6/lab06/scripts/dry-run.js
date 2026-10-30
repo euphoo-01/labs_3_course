@@ -1,6 +1,5 @@
 'use strict';
 
-// Кроссплатформенный старт без установки дополнительных утилит.
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 const target = process.argv[2];
