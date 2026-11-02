@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Лабораторная работа № 7 — статические ресурсы</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+    <script src="/scripts/main.js" defer></script>
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="intro">
+        <p class="label">Лабораторная работа № 7</p>
+        <h1>Статические ресурсы сервера</h1>
+      </div>
+      <section id="media" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="label">Локальные файлы</p>
+            <h2>Изображение и видео</h2>
+          </div>
+          <p>Ресурсы загружаются из вложенных каталогов сервера.</p>
+        </div>
+        <div class="media-grid">
+          <figure>
+            <img
+              src="/images/server.png"
+              alt="Схематичное изображение страницы с текстом"
+            />
+            <figcaption>
+              <strong>Изображение PNG</strong><code>/images/server.png</code>
+            </figcaption>
+          </figure>
+          <figure>
+            <video controls preload="metadata" width="640" height="360">
+              <source src="/media/demo.mp4" type="video/mp4" />
+              Ваш браузер не поддерживает воспроизведение видео.
+              <a href="/media/demo.mp4">Скачать видео</a>.
+            </video>
+            <figcaption>
+              <strong>Видео MP4</strong><code>/media/demo.mp4</code>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section id="data" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="label">Запросы из браузера</p>
+            <h2>Данные файлов</h2>
+          </div>
+          <p>
+            Каждый файл запрашивается отдельно. Ответ показан в исходном виде.
+          </p>
+        </div>
+        <div class="data-grid">
+          <article class="data-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>JSON</h3>
+                <code>/data/example.json</code>
+              </div>
+              <span id="json-status" class="status" role="status"
+                >Загрузка…</span
+              >
+            </div>
+            <pre id="json-output" aria-label="Содержимое JSON">
+Ожидание ответа сервера…</pre
+            >
+          </article>
+          <article class="data-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>XML</h3>
+                <code>/data/example.xml</code>
+              </div>
+              <span id="xml-status" class="status" role="status"
+                >Загрузка…</span
+              >
+            </div>
+            <pre id="xml-output" aria-label="Содержимое XML">
+Ожидание ответа сервера…</pre
+            >
+          </article>
+        </div>
+      </section>
+      <section id="document" class="section document">
+        <div>
+          <p class="label">Материалы работы</p>
+        </div>
+        <a class="download" href="/documents/lab07.docx" download
+          >Скачать задание <span aria-hidden="true">↓</span></a
+        >
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Лабораторная 5: как устроен экземпляр Oracle</title><link rel="stylesheet" href="../assets/lesson.css"><body>
+<p>Лабораторная № 5 · первый шаг · 10 минут</p><h1>Где живут данные и кто выполняет SQL</h1>
+<p>Цель: объяснить путь простого SELECT и различить файлы БД, общую память и процессы.</p>
+<h2>1. База данных и экземпляр</h2><p><b>База данных</b> — файлы на диске. <b>Экземпляр (инстанс)</b> — SGA и фоновые процессы, которые обеспечивают работу с этими файлами. Остановка экземпляра освобождает его память, но не удаляет файлы базы.</p>
+<p><b>SGA — System Global Area</b>: общая память экземпляра. <b>PGA — Program Global Area</b>: личная память процесса, например для рабочих операций SQL. PGA не является частью SGA.</p>
+<h2>2. Три области, которые нельзя путать</h2><table><tr><th>Область SGA</th><th>Что хранит</th></tr><tr><td>Buffer cache</td><td>Копии блоков данных таблиц и индексов.</td></tr><tr><td>Shared pool</td><td>Общие структуры SQL/PLSQL, планы выполнения и кэш словаря данных.</td></tr><tr><td>Redo log buffer</td><td>Записи об изменениях для восстановления.</td></tr></table>
+<h2>3. Путь обычного чтения</h2><pre>SQL Developer → серверный процесс
+                  ├─ shared pool: поиск пригодного разобранного SQL
+                  └─ buffer cache: поиск нужных блоков
+                       └─ при промахе: чтение с диска</pre><p>Это базовая модель обычного чтения через кэш; существуют и другие пути, например direct reads. Listener помогает установить соединение, а SQL выполняет серверный процесс.</p>
+<h2>4. Что происходит при UPDATE и COMMIT</h2><p>При изменении данных появляются изменённые (dirty) блоки и redo. <b>DBWn</b> записывает изменённые блоки в файлы данных. <b>LGWR</b> записывает redo в журналы. При обычном синхронном COMMIT Oracle ждёт сохранения нужного redo; все изменённые блоки таблицы к этому моменту не обязаны быть записаны DBWn.</p>
+<h2>5. Первая практика: только чтение</h2><p>В SQL Developer выполняй запросы по одному. Не запускай пока весь DB_L5.sql: в нём есть удаление и повторное создание двух учебных таблиц.</p><pre>SELECT SYS_CONTEXT('USERENV', 'CON_NAME') AS container_name,
+       SYS_CONTEXT('USERENV', 'SESSION_USER') AS session_user
+FROM dual;
+
+SELECT name, value,
+       ROUND(value / 1024 / 1024, 2) AS size_mb
+FROM v$sga;
+
+SELECT ROUND(SUM(value) / 1024 / 1024, 2) AS total_mb
+FROM v$sga;</pre><p>VALUE выражено в байтах. Деление на 1024² переводит результат в МиБ (в SQL названо MB). Сумма — выделенный объём SGA, а не свободная память. Ошибка доступа к V$SGA требует проверки прав; она не означает отсутствие SGA.</p>
+<h2>Проверь себя до открытия ответов</h2><p>1. Где искать копию блока таблицы?<br>2. Кто пишет redo?<br>3. Значит ли COMMIT, что DBWn записал все блоки таблицы?</p><details><summary>Сверить объяснение</summary><p>1. В buffer cache. 2. LGWR. 3. Нет: устойчивость фиксации обеспечивается сохранением redo; блоки данных могут записываться позже.</p></details>
+<h2>Как дальше проходить лабораторную</h2><ol><li>Пункты 1–5: размеры SGA, гранулы, свободная память, TARGET/MAX_SIZE.</li><li>Пункты 6–10: DEFAULT/KEEP/RECYCLE, сегмент таблицы, CACHE, redo и large pool.</li><li>Пункты 11–16: сессии, серверные/фоновые процессы, DBWn, сервисы и диспетчеры.</li><li>Пункты 17–20: процесс Listener в контейнере, listener.ora, lsnrctl status/services.</li></ol>
+<p>Сначала <a href="../Лекции/Лекция%205.ppt">лекция 5</a>, затем <a href="../Лекции/Лекция%206.ppt">лекция 6</a>. Подробности: <a href="../Lab05_Theory_and_Guide.md">имеющийся конспект</a>. Основной внешний источник: <a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/cncpt/memory-architecture.html">Oracle Memory Architecture</a>; процессы: <a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/cncpt/process-architecture.html">Oracle Process Architecture</a>.</p><p>Напиши агенту ответы своими словами или пришли результат первых запросов — разберём непонятное перед следующим шагом.</p></body></html>

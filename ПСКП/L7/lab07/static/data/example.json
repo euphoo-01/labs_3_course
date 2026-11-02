@@ -1,0 +1,6 @@
+{
+  "course": "ПСКП",
+  "lab": 7,
+  "topic": "Статические ресурсы",
+  "formats": ["HTML", "CSS", "JavaScript", "JSON", "XML"]
+}

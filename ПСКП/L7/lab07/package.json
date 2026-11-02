@@ -1,0 +1,10 @@
+{
+  "name": "pskp-lab07",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ПСКП — лабораторная работа 07",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
