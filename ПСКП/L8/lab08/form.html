@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>параметры формы</title></head>
+<body>
+<h1>параметры формы</h1>
+<form action="/formparameter" method="post">
+  <p><label>текст <input type="text" name="text"></label></p>
+  <p><label>число <input type="number" name="number"></label></p>
+  <p><label>дата <input type="date" name="date"></label></p>
+  <p><label><input type="checkbox" name="checkbox" value="yes"> флажок</label></p>
+  <p>
+    <label><input type="radio" name="radio" value="one"> первый</label>
+    <label><input type="radio" name="radio" value="two"> второй</label>
+  </p>
+  <p><label>сообщение <textarea name="message"></textarea></label></p>
+  <input type="submit" name="submit" value="отправить">
+  <input type="submit" name="submit" value="сохранить">
+</form>
+<p><a href="/upload">загрузка файла</a></p>
+</body>
+</html>
