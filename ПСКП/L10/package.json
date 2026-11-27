@@ -1,0 +1,13 @@
+{
+  "name": "pskp-lab10",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node 10-01.js",
+    "start:10-02": "node 10-02.js",
+    "start:10-03": "node 10-03.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

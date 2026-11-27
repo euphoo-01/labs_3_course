@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Лабораторная работа 10-01</title></head>
+<body>
+  <button id="startWS">startWS</button>
+  <pre id="messages"></pre>
+  <script>
+    const messages = document.getElementById("messages");
+    document.getElementById("startWS").addEventListener("click", () => {
+      const socket = new WebSocket("ws://localhost:4000");
+      let clientNumber = 0;
+      let sendTimer;
+      const log = (message) => { messages.textContent += message + "\n"; };
+      socket.addEventListener("open", () => {
+        const sendMessage = () => {
+          if (socket.readyState === WebSocket.OPEN) socket.send("10-01-client: " + (++clientNumber));
+        };
+        sendMessage();
+        sendTimer = setInterval(sendMessage, 3000);
+      });
+      socket.addEventListener("message", (event) => log(event.data));
+      socket.addEventListener("error", () => log("ошибка WebSocket"));
+      socket.addEventListener("close", () => log("соединение закрыто"));
+      setTimeout(() => {
+        clearInterval(sendTimer);
+        if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) socket.close();
+      }, 25000);
+    });
+  </script>
+</body>
+</html>
